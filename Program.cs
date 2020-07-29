@@ -17,7 +17,7 @@ namespace SeleniumExpTestProject
                 {
                     try
                     {
-                        WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
+                        //WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(2));
                         driver.Url = "https://pbarbeiro-secrets.herokuapp.com/";
                         driver.Navigate();
                         driver.Manage().Window.Maximize();
@@ -58,7 +58,7 @@ namespace SeleniumExpTestProject
             }
             finally
             {
-                Console.WriteLine("Reched Finally");
+                Console.WriteLine("Reached Finally");
                 Console.ReadKey();
             }
            
