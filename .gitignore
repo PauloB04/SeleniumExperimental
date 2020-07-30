@@ -1,4 +1,5 @@
 *.config
 Properties/
 bin/
-obj/
+obj
+.env
