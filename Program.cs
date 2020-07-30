@@ -38,7 +38,6 @@ namespace SeleniumExpTestProject
                         Console.WriteLine($"Exception message: {e.Message}");
                         Console.WriteLine($"Exception code trace: {e.StackTrace}");
                     }
-                    
                 }
             }
             catch (Exception e)
@@ -62,7 +61,6 @@ namespace SeleniumExpTestProject
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
             waitGlobal = wait;
             driverGlobal = InitiateDriver(driver);
-
             await AttemptToRegisterCredentials(driver, testCaseUsername, testCasePassword);
 
             //TODO: Write code to check and handle for element on the page that follows user registry.
@@ -98,6 +96,7 @@ namespace SeleniumExpTestProject
             var registerText = "Register";
 
             //TODO: Check to see if strings aren't empty
+            //TODO: Instead of checking for 'Register', check if password input field is present
 
             driver.FindElement(By.ClassName("btn-light")).Click();
             var result = await IsTextPresentInElement(driver, waitGlobal, registerCondition, registerText);
@@ -121,6 +120,5 @@ namespace SeleniumExpTestProject
            //TODO: ExpectedConditions is deprecated, find and substitute with newer version
             return result;
         }
-
     }
 }
