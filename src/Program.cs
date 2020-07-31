@@ -19,11 +19,7 @@ namespace SeleniumExpTestProject
         {
             try
             {
-                DotEnv.Config();
-                EnvReader envReader = new EnvReader();
-                Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
-                Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
-
+                DotEnvConfig();
                 using (IWebDriver driver = new ChromeDriver())
                 {
                     try
@@ -32,22 +28,16 @@ namespace SeleniumExpTestProject
                     }
                     catch (Exception e)
                     {
-                        Console.WriteLine($"Exception found insde 'using' block:");
-                        Console.WriteLine($"Exception message: {e.Message}");
-                        Console.WriteLine($"Exception code trace: {e.StackTrace}");
+                        Misc.HandleException(e, Data.ExcMsgUsingDriverBlock);
                     }
                 }
             }
             catch (Exception e)
             {
-                Misc.HandleException(e, );
-                Console.WriteLine($"Exception found:");
-                Console.WriteLine($"Exception message: {e.Message}");
-                Console.WriteLine($"Exception code trace: {e.StackTrace}");
+                Misc.HandleException(e, Data.ExcMsgMain);
             }
             finally
             {
-                //driverGlobal.Close();
                 driverGlobal.Quit();
                 Console.WriteLine("Reached Finally");
                 Console.ReadKey();
@@ -59,7 +49,9 @@ namespace SeleniumExpTestProject
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
             waitGlobal = wait;
             driverGlobal = InitiateDriver(driver);
-            await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
+            var isRegistered = await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
+
+            //TODO: If user is already registered, then attempt log in
             
             Console.ReadKey();
             Thread.Sleep(10000);
@@ -79,7 +71,7 @@ namespace SeleniumExpTestProject
 
             driver.FindElement(By.ClassName("btn-light")).Click();
 
-            var result = await IsTextPresentInElement(driver, waitGlobal, registerCondition, Data.registerButtonText);
+            var result = await IsTextPresentInElement(driver, registerCondition, Data.registerButtonText);
             
             if (result)
             {
@@ -94,20 +86,47 @@ namespace SeleniumExpTestProject
                 {
                     Console.WriteLine($"{nameof(username)} or {nameof(password)} isn't a valid string");
                 }
-                
             }
             
             Console.WriteLine($"Press any key to proceed with Button click");
-            Console.ReadKey();
+            //Console.ReadKey();
+            
             driver.FindElement(By.CssSelector("button")).Click();
-            return true;
+
+            var isLoggedIn = await IsLoggedIn(driver);
+
+            return isLoggedIn;
         }
 
-        private static async Task<bool> IsTextPresentInElement(IWebDriver driver, WebDriverWait wait, By elementLocator, string text)
+        private static async Task<bool> IsLoggedIn(IWebDriver driver)
         {
-            var result = wait.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
+            var element = By.LinkText("Log Out");
+
+            var result = waitGlobal.Until(ExpectedConditions.ElementExists(element));
+            Console.WriteLine($"{nameof(result)}: {result}");
+
+            if (result != null)
+            {
+                Console.WriteLine($"{nameof(element)} found: {element}");
+                return true;
+            }
+
+            return false;
+        } 
+
+        private static async Task<bool> IsTextPresentInElement(IWebDriver driver, By elementLocator, string text)
+        {
+            var result = waitGlobal.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
             Console.WriteLine($"{nameof(result)}: {result}");
             return result;
+        }
+
+        private static void DotEnvConfig()
+        {
+            DotEnv.Config();
+            EnvReader envReader = new EnvReader();
+            Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
+            Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
         }
     }
 }

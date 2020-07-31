@@ -6,6 +6,8 @@
         private static string testCaseUsername = string.Empty;
         private static string testCasePassword = string.Empty;
         internal const string registerButtonText = "Register";
+        internal const string ExcMsgUsingDriverBlock = "Exception found insde 'using' block:";
+        internal const string ExcMsgMain = "Exception found:";
 
         #region Set
         internal static void SetTestCaseUsername(string username)
@@ -15,7 +17,7 @@
 
         internal static void SetTestCasePassword(string password)
         {
-            testCaseUsername = password;
+            testCasePassword = password;
         }
         #endregion
 
