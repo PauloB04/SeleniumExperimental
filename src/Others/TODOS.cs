@@ -8,8 +8,6 @@
         - Write code to post a 'Secret' with the credentials used for login
         - Modify Web app code to provide feed back when user has already been registered
         - Modify Web app code to provide feedback when a user tries to login/register with empty strings (?) 
-        - Organize code
-        - Organize TODOs lol
         - Assign appropriate return values for methods
         */
 
