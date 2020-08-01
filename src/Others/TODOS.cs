@@ -13,8 +13,6 @@
         */
 
         //TODO: Write code to check and handle for element on the page that follows user registry.
-        //TODO: Find way to check for http response instead?
-        //TODO: Console window isn't showing up, why?
 
         /*
         TODO - Tests: 

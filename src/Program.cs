@@ -14,7 +14,7 @@ namespace SeleniumExpTestProject
     {
         private static IWebDriver driverGlobal = null;
         private static WebDriverWait waitGlobal = null;
-        
+
         static void Main(string[] args)
         {
             try
@@ -28,13 +28,13 @@ namespace SeleniumExpTestProject
                     }
                     catch (Exception e)
                     {
-                        Misc.HandleException(e, Data.ExcMsgUsingDriverBlock);
+                        Misc.HandleException(e, Data.excMsgUsingDriverBlock);
                     }
                 }
             }
             catch (Exception e)
             {
-                Misc.HandleException(e, Data.ExcMsgMain);
+                Misc.HandleException(e, Data.excMsgMain);
             }
             finally
             {
@@ -49,10 +49,22 @@ namespace SeleniumExpTestProject
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
             waitGlobal = wait;
             driverGlobal = InitiateDriver(driver);
-            var isRegistered = await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
+            var isRegisteredAndLoggedIn = await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
 
             //TODO: If user is already registered, then attempt log in
-            
+            if (!isRegisteredAndLoggedIn)
+            {
+                var isLoggedIn = await AttemptToLogIn(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
+
+                if (isLoggedIn)
+                {
+                    //SubmitSecret();
+                    Console.WriteLine("Successfully logged in");
+                }
+            }
+
+            //Submit a secret
+
             Console.ReadKey();
             Thread.Sleep(10000);
         }
@@ -72,10 +84,10 @@ namespace SeleniumExpTestProject
             driver.FindElement(By.ClassName("btn-light")).Click();
 
             var result = await IsTextPresentInElement(driver, registerCondition, Data.registerButtonText);
-            
+
             if (result)
             {
-                Thread.Sleep(400);//TODO: result returns true but the system still attemps to sendKeys() a tad too fast, there might be a cleaner way around?
+                Thread.Sleep(Data.threadSleepTime);//TODO: result returns true but the system still attemps to sendKeys() a tad too fast, there might be a cleaner way around?
 
                 if (Misc.IsStringValid(username) && Misc.IsStringValid(password))
                 {
@@ -87,10 +99,10 @@ namespace SeleniumExpTestProject
                     Console.WriteLine($"{nameof(username)} or {nameof(password)} isn't a valid string");
                 }
             }
-            
+
             Console.WriteLine($"Press any key to proceed with Button click");
             //Console.ReadKey();
-            
+
             driver.FindElement(By.CssSelector("button")).Click();
 
             var isLoggedIn = await IsLoggedIn(driver);
@@ -98,27 +110,72 @@ namespace SeleniumExpTestProject
             return isLoggedIn;
         }
 
+        private static async Task<bool> AttemptToLogIn(IWebDriver driver, string username, string password)
+        {
+            if (Misc.IsStringValid(username) && Misc.IsStringValid(password))
+            {
+                var loginLocator = By.CssSelector("h1");
+                driver.Url = Data.webAppUrl + Data.loginRoute;
+                driver.Navigate();
+                var result = await IsTextPresentInElement(driver, loginLocator, Data.loginText);
+
+                if (result)
+                {
+                    Thread.Sleep(Data.threadSleepTime);
+                    driver.FindElement(By.Name(nameof(username))).SendKeys(username);
+                    driver.FindElement(By.Name(nameof(password))).SendKeys(password);
+                    driver.FindElement(By.CssSelector("button")).Click();
+                }
+            }
+            return await IsLoggedIn(driver);
+        }
+
+        #region Utilities
+        
         private static async Task<bool> IsLoggedIn(IWebDriver driver)
         {
-            var element = By.LinkText("Log Out");
-
-            var result = waitGlobal.Until(ExpectedConditions.ElementExists(element));
-            Console.WriteLine($"{nameof(result)}: {result}");
-
-            if (result != null)
+            try
             {
-                Console.WriteLine($"{nameof(element)} found: {element}");
-                return true;
+                var element = By.LinkText("Log Out");
+                var result = waitGlobal.Until(ExpectedConditions.ElementExists(element));
+                Console.WriteLine($"{nameof(result)}: {result}");
+
+                if (result != null)
+                {
+                    Console.WriteLine($"{nameof(element)} found: {element}");
+                    return true;
+                }
+            }
+            catch (WebDriverTimeoutException e)
+            {
+                Misc.HandleException(e, Data.excMsgIsLoggedIn);
+            }
+            catch (Exception e)
+            {
+                Misc.HandleException(e, Data.excMsgIsLoggedIn);
             }
 
             return false;
-        } 
+        }
 
         private static async Task<bool> IsTextPresentInElement(IWebDriver driver, By elementLocator, string text)
         {
-            var result = waitGlobal.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
-            Console.WriteLine($"{nameof(result)}: {result}");
-            return result;
+            try
+            {
+                var result = waitGlobal.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
+                Console.WriteLine($"{nameof(result)}: {result}");
+
+                return result;
+            } catch (WebDriverTimeoutException e)
+            {
+                Misc.HandleException(e, Data.excMsgIsTextPresent);
+            }
+            catch (Exception e)
+            {
+                Misc.HandleException(e, Data.excMsgIsTextPresent);
+            }
+
+            return false;
         }
 
         private static void DotEnvConfig()
@@ -128,5 +185,6 @@ namespace SeleniumExpTestProject
             Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
             Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
         }
+        #endregion
     }
 }

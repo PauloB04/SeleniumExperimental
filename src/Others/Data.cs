@@ -5,9 +5,14 @@
         internal const string webAppUrl = "https://pbarbeiro-secrets.herokuapp.com/";
         private static string testCaseUsername = string.Empty;
         private static string testCasePassword = string.Empty;
+        internal const int threadSleepTime = 400;
+        internal const string loginRoute = "login";
+        internal const string loginText = "Login";
         internal const string registerButtonText = "Register";
-        internal const string ExcMsgUsingDriverBlock = "Exception found insde 'using' block:";
-        internal const string ExcMsgMain = "Exception found:";
+        internal const string excMsgUsingDriverBlock = "Exception found insde 'using' block:";
+        internal const string excMsgMain = "Exception found:";
+        internal const string excMsgIsLoggedIn = "Exception found while checking logged in state";
+        internal const string excMsgIsTextPresent = "Exception found while checking if text is present in element:";
 
         #region Set
         internal static void SetTestCaseUsername(string username)
