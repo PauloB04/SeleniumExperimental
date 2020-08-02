@@ -50,22 +50,29 @@ namespace SeleniumExpTestProject
             waitGlobal = wait;
             driverGlobal = InitiateDriver(driver);
             var isRegisteredAndLoggedIn = await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
-
-            //TODO: If user is already registered, then attempt log in
+            
             if (!isRegisteredAndLoggedIn)
             {
                 var isLoggedIn = await AttemptToLogIn(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
 
-                if (isLoggedIn)
+                if (!isLoggedIn)
                 {
-                    //SubmitSecret();
-                    Console.WriteLine("Successfully logged in");
+                    Console.Beep();
+                    Console.WriteLine("An error occured while attempting to log in");
+                    Console.WriteLine("Press any key to acknowledge error & quit.");
+                    Console.ReadKey();
+                    Environment.Exit(0);
                 }
             }
 
-            //Submit a secret
+            Console.WriteLine("Successfully logged in");
 
+            Data.SetSecret(string.Empty, Data.GetTestCaseUsername());
+            var wasSecretSubmitted = await SubmitSecret(driver, Data.GetSecret());
+
+            Console.WriteLine("Press any key to proceed");
             Console.ReadKey();
+            Console.WriteLine("Thread will be sleeping for 10000 ms");
             Thread.Sleep(10000);
         }
 
@@ -79,7 +86,7 @@ namespace SeleniumExpTestProject
 
         private static async Task<bool> AttemptToRegisterCredentials(IWebDriver driver, string username, string password)
         {
-            var registerCondition = By.CssSelector("button");
+            var registerCondition = By.CssSelector(Data.btnCssSelector);
 
             driver.FindElement(By.ClassName("btn-light")).Click();
 
@@ -124,10 +131,47 @@ namespace SeleniumExpTestProject
                     Thread.Sleep(Data.threadSleepTime);
                     driver.FindElement(By.Name(nameof(username))).SendKeys(username);
                     driver.FindElement(By.Name(nameof(password))).SendKeys(password);
-                    driver.FindElement(By.CssSelector("button")).Click();
+                    driver.FindElement(By.CssSelector(Data.btnCssSelector)).Click();
                 }
             }
             return await IsLoggedIn(driver);
+        }
+
+        private static async Task<bool> SubmitSecret(IWebDriver driver, string secret)
+        {
+            var wasSubmissionSuccessful = false;
+            var submitElementLocator = By.CssSelector("p");
+            var elementWithSubmittedSecret = By.CssSelector("p");
+            //Thread.Sleep(Data.threadSleepTime);
+            var submitButton = driver.FindElement(By.LinkText(Data.submitSecretBtnText)); //TODO: this action isnt happening somehow
+
+            Console.WriteLine($"{nameof(submitButton)} result: {submitButton}");
+            Thread.Sleep(600);
+            submitButton.Click();
+
+            var isElementPresent = await IsTextPresentInElement(driver, submitElementLocator, Data.submitPageTextId);
+
+            if (isElementPresent)
+            {
+                Thread.Sleep(Data.threadSleepTime);
+                driver.FindElement(By.Name(nameof(secret))).Clear();
+                driver.FindElement(By.Name(nameof(secret))).SendKeys(secret);
+                driver.FindElement(By.CssSelector(Data.btnCssSelector)).Click();
+
+                var hasSecretBeenSubmitted = await IsLoggedIn(driver);
+
+                /*if (hasSecretBeenSubmitted)
+                {
+                    Thread.Sleep(Data.threadSleepTime);
+
+                    var isSecretPresent = await IsTextPresentInElement(driver, elementWithSubmittedSecret, secret);
+
+                    wasSubmissionSuccessful = isSecretPresent;
+                }*/
+                wasSubmissionSuccessful = hasSecretBeenSubmitted;
+            }
+
+            return wasSubmissionSuccessful;
         }
 
         #region Utilities
@@ -168,6 +212,7 @@ namespace SeleniumExpTestProject
                 return result;
             } catch (WebDriverTimeoutException e)
             {
+                Console.WriteLine($"Expected text: {text}");
                 Misc.HandleException(e, Data.excMsgIsTextPresent);
             }
             catch (Exception e)

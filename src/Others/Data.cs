@@ -5,7 +5,11 @@
         internal const string webAppUrl = "https://pbarbeiro-secrets.herokuapp.com/";
         private static string testCaseUsername = string.Empty;
         private static string testCasePassword = string.Empty;
+        internal static string secret = $"This secret was generated automatically as a test for user '{testCaseUsername}'";
         internal const int threadSleepTime = 400;
+        internal const string btnCssSelector = "button";
+        internal const string submitPageTextId = "Don't keep your secrets, share them anonymously!";
+        internal const string submitSecretBtnText = "Submit a Secret";
         internal const string loginRoute = "login";
         internal const string loginText = "Login";
         internal const string registerButtonText = "Register";
@@ -24,6 +28,12 @@
         {
             testCasePassword = password;
         }
+
+        internal static void SetSecret(string _secret, string _testCaseUsername)
+        {
+            secret = Misc.IsStringNullOr(_secret) ?
+            $"This secret was generated automatically as a test for user '{_testCaseUsername}'" : _secret + " " + _testCaseUsername;
+        }
         #endregion
 
         #region Get
@@ -35,6 +45,11 @@
         internal static string GetTestCasePassword()
         {
             return testCasePassword;
+        }
+
+        internal static string GetSecret()
+        {
+            return secret;
         }
         #endregion
     }
