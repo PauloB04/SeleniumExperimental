@@ -19,7 +19,7 @@ namespace SeleniumExpTestProject
             try
             {
                 DotEnvConfig();
-                Core.CheckCredentials();
+                Core.CheckCredentials();//Used to check credentials in case dotenv config fails
                 Misc.StartProgramMsg();
                 
                 using (IWebDriver driver = new ChromeDriver())
