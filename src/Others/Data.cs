@@ -20,6 +20,8 @@ namespace SeleniumExpTestProject.src.Others
         internal const string excMsgMain = "Exception found:";
         internal const string excMsgIsLoggedIn = "Exception found while checking logged in state";
         internal const string excMsgIsTextPresent = "Exception found while checking if text is present in element:";
+        internal const int beepFrequency = 1000;//In hertz
+        internal const int beepDuration = 2000; //Milliseconds
 
         #region Set
         internal static void SetTestCaseUsername(string username)

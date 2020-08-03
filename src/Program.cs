@@ -1,8 +1,8 @@
 ﻿using System;
 using dotenv.net;
 using dotenv.net.Utilities;
-using System.Threading;
 using System.Threading.Tasks;
+using System.Runtime.InteropServices;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -20,6 +20,8 @@ namespace SeleniumExpTestProject
             try
             {
                 DotEnvConfig();
+                Misc.StartProgramMsg();
+
                 using (IWebDriver driver = new ChromeDriver())
                 {
                     try
@@ -57,7 +59,7 @@ namespace SeleniumExpTestProject
 
                 if (!isLoggedIn)
                 {
-                    Console.Beep();
+                    Misc.Beep();
                     Console.WriteLine("An error occured while attempting to log in");
                     Console.WriteLine("Press any key to acknowledge error & quit.");
                     Console.ReadKey();
@@ -70,6 +72,7 @@ namespace SeleniumExpTestProject
             Data.SetSecret(string.Empty, Data.GetTestCaseUsername());
             var wasSecretSubmitted = await Core.SubmitSecret(driver, Data.GetSecret());
 
+            Misc.Beep();
             Console.WriteLine("Press any key to quit test window.");
             Console.ReadKey();
         }
