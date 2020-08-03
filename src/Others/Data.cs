@@ -1,10 +1,13 @@
-﻿namespace SeleniumExpTestProject.src.Others
+﻿using OpenQA.Selenium.Support.UI;
+
+namespace SeleniumExpTestProject.src.Others
 {
     internal static class Data
     {
-        internal const string webAppUrl = "https://pbarbeiro-secrets.herokuapp.com/";
         private static string testCaseUsername = string.Empty;
         private static string testCasePassword = string.Empty;
+        private static WebDriverWait waitGlobal = null;
+        internal const string webAppUrl = "https://pbarbeiro-secrets.herokuapp.com/";
         internal static string secret = $"This secret was generated automatically as a test for user '{testCaseUsername}'";
         internal const int threadSleepTime = 400;
         internal const string btnCssSelector = "button";
@@ -34,6 +37,11 @@
             secret = Misc.IsStringNullOr(_secret) ?
             $"This secret was generated automatically as a test for user '{_testCaseUsername}'" : _secret + " " + _testCaseUsername;
         }
+
+        internal static void SetWaitGlobal(WebDriverWait wait)
+        {
+            waitGlobal = wait;
+        }
         #endregion
 
         #region Get
@@ -50,6 +58,11 @@
         internal static string GetSecret()
         {
             return secret;
+        }
+
+        internal static WebDriverWait GetWaitGlobal()
+        {
+            return waitGlobal;
         }
         #endregion
     }
