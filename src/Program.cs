@@ -1,25 +1,27 @@
 ﻿using System;
 using dotenv.net;
 using dotenv.net.Utilities;
-using System.Threading;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
 using SeleniumExpTestProject.src.Others;
+using SeleniumExpTestProject.src.Workers;
 
 namespace SeleniumExpTestProject
 {
     class Program
     {
         private static IWebDriver driverGlobal = null;
-        private static WebDriverWait waitGlobal = null;
-        
+
         static void Main(string[] args)
         {
             try
             {
                 DotEnvConfig();
+                Core.CheckCredentials();//Used to check credentials in case dotenv config fails
+                Misc.StartProgramMsg();
+                
                 using (IWebDriver driver = new ChromeDriver())
                 {
                     try
@@ -28,36 +30,56 @@ namespace SeleniumExpTestProject
                     }
                     catch (Exception e)
                     {
-                        Misc.HandleException(e, Data.ExcMsgUsingDriverBlock);
+                        Misc.HandleException(e, Data.excMsgUsingDriverBlock);
                     }
                 }
             }
             catch (Exception e)
             {
-                Misc.HandleException(e, Data.ExcMsgMain);
+                Misc.HandleException(e, Data.excMsgMain);
             }
             finally
             {
                 driverGlobal.Quit();
-                Console.WriteLine("Reached Finally");
+                Console.WriteLine("Reached final code block. Press any key to exit.");
                 Console.ReadKey();
             }
         }
 
-        private static async Task RunCode(IWebDriver driver)
+        private static async Task RunCode(IWebDriver driver)//Runs the core of the app with help from other libraries
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
-            waitGlobal = wait;
+            Data.SetWaitGlobal(wait);
             driverGlobal = InitiateDriver(driver);
-            var isRegistered = await AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
-
-            //TODO: If user is already registered, then attempt log in
+            var isRegisteredAndLoggedIn = await Core.AttemptToRegisterCredentials(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
             
-            Console.ReadKey();
-            Thread.Sleep(10000);
+            if (!isRegisteredAndLoggedIn)
+            {
+                var isLoggedIn = await Core.AttemptToLogIn(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
+
+                if (!isLoggedIn)
+                    Misc.ErrorFoundQuit("attempting to log in");
+            }
+
+            Console.WriteLine("Successfully logged in");
+
+            Data.SetSecret(string.Empty, Data.GetTestCaseUsername());
+            var wasSecretSubmitted = await Core.SubmitSecret(driver, Data.GetSecret());
+            EndRunCode();
         }
 
-        private static IWebDriver InitiateDriver(IWebDriver driver)
+        private static void EndRunCode()
+        {
+            Misc.Beep();
+            Console.WriteLine("Press any key to quit test window.");
+            Misc.Space();
+            Console.ReadKey();
+            Misc.Space();
+        }
+
+        #region Setup
+
+        private static IWebDriver InitiateDriver(IWebDriver driver)//Starts up the webDriver needed to open a browser window
         {
             driver.Url = Data.webAppUrl;
             driver.Navigate();
@@ -65,68 +87,20 @@ namespace SeleniumExpTestProject
             return driver;
         }
 
-        private static async Task<bool> AttemptToRegisterCredentials(IWebDriver driver, string username, string password)
+        private static void DotEnvConfig()//Configures DotEnv files to find & recognize environment variables
         {
-            var registerCondition = By.CssSelector("button");
-
-            driver.FindElement(By.ClassName("btn-light")).Click();
-
-            var result = await IsTextPresentInElement(driver, registerCondition, Data.registerButtonText);
-            
-            if (result)
+            try
             {
-                Thread.Sleep(400);//TODO: result returns true but the system still attemps to sendKeys() a tad too fast, there might be a cleaner way around?
-
-                if (Misc.IsStringValid(username) && Misc.IsStringValid(password))
-                {
-                    driver.FindElement(By.Name("username")).SendKeys(username);
-                    driver.FindElement(By.Name("password")).SendKeys(password);
-                }
-                else
-                {
-                    Console.WriteLine($"{nameof(username)} or {nameof(password)} isn't a valid string");
-                }
+                DotEnv.Config();
+                EnvReader envReader = new EnvReader();
+                Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
+                Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
             }
-            
-            Console.WriteLine($"Press any key to proceed with Button click");
-            //Console.ReadKey();
-            
-            driver.FindElement(By.CssSelector("button")).Click();
-
-            var isLoggedIn = await IsLoggedIn(driver);
-
-            return isLoggedIn;
-        }
-
-        private static async Task<bool> IsLoggedIn(IWebDriver driver)
-        {
-            var element = By.LinkText("Log Out");
-
-            var result = waitGlobal.Until(ExpectedConditions.ElementExists(element));
-            Console.WriteLine($"{nameof(result)}: {result}");
-
-            if (result != null)
+            catch (Exception e)
             {
-                Console.WriteLine($"{nameof(element)} found: {element}");
-                return true;
+                Misc.HandleException(e, Data.excMsgDotEnvConfig);
             }
-
-            return false;
-        } 
-
-        private static async Task<bool> IsTextPresentInElement(IWebDriver driver, By elementLocator, string text)
-        {
-            var result = waitGlobal.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
-            Console.WriteLine($"{nameof(result)}: {result}");
-            return result;
         }
-
-        private static void DotEnvConfig()
-        {
-            DotEnv.Config();
-            EnvReader envReader = new EnvReader();
-            Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
-            Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
-        }
+        #endregion
     }
 }
