@@ -85,7 +85,7 @@ namespace SeleniumExpTestProject.src.Others
             Console.ReadKey();
         }
 
-        internal static void Sleep(int secs)//Forces Thread to sleep for specified seconds
+        internal static void Sleep(double secs)//Forces Thread to sleep for specified seconds
         {
             Thread.Sleep(secs*1000);
         }

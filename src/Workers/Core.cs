@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Threading;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using SeleniumExpTestProject.src.Others;
@@ -19,7 +18,7 @@ namespace SeleniumExpTestProject.src.Workers
 
             if (result)
             {
-                Thread.Sleep(Data.threadSleepTime);//TODO: result returns true but the system still attemps to sendKeys() a tad too fast,
+                Misc.Sleep(Data.threadSleepTime);//TODO: result returns true but the system still attemps to sendKeys() a tad too fast,
                                                     //there might be a cleaner way around?
 
                 if (Misc.IsStringValid(username) && Misc.IsStringValid(password))
@@ -51,7 +50,7 @@ namespace SeleniumExpTestProject.src.Workers
 
                 if (result)
                 {
-                    Thread.Sleep(Data.threadSleepTime);
+                    Misc.Sleep(Data.threadSleepTime);
                     driver.FindElement(By.Name(nameof(username))).SendKeys(username);
                     driver.FindElement(By.Name(nameof(password))).SendKeys(password);
                     driver.FindElement(By.CssSelector(Data.btnCssSelector)).Click();
@@ -68,14 +67,14 @@ namespace SeleniumExpTestProject.src.Workers
             var submitButton = driver.FindElement(By.LinkText(Data.submitSecretBtnText));
 
             Console.WriteLine($"{nameof(submitButton)} result: {submitButton}");
-            Thread.Sleep(600);
+            Misc.Sleep(.6);
             submitButton.Click();
 
             var isElementPresent = await IsTextPresentInElement(driver, submitElementLocator, Data.submitPageTextId);
 
             if (isElementPresent)
             {
-                Thread.Sleep(Data.threadSleepTime);
+                Misc.Sleep(Data.threadSleepTime);
                 driver.FindElement(By.Name(nameof(secret))).Clear();
                 driver.FindElement(By.Name(nameof(secret))).SendKeys(secret);
                 driver.FindElement(By.CssSelector(Data.btnCssSelector)).Click();

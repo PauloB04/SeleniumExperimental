@@ -9,7 +9,7 @@ namespace SeleniumExpTestProject.src.Others
         private static WebDriverWait waitGlobal = null;
         internal const string webAppUrl = "https://pbarbeiro-secrets.herokuapp.com/";
         internal static string secret = $"This secret was generated automatically as a test for user '{testCaseUsername}'";
-        internal const int threadSleepTime = 400;
+        internal const double threadSleepTime = .4;//0.4 secs || 400 millisecs
         internal const string btnCssSelector = "button";
         internal const string submitPageTextId = "Don't keep your secrets, share them anonymously!";
         internal const string submitSecretBtnText = "Submit a Secret";
