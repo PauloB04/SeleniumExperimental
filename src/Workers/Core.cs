@@ -103,7 +103,7 @@ namespace SeleniumExpTestProject.src.Workers
             var password = Data.GetTestCasePassword();
             credentials.Add(username, password);
 
-            if (Misc.IsStringNullOr(username) && Misc.IsStringNullOr(password))
+            if (Misc.IsStringNullOr(username) || Misc.IsStringNullOr(password))
             {
                 Data.SetTestCaseUsername("John@Doe");
                 username = Data.GetTestCaseUsername();
