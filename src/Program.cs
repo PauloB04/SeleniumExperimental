@@ -2,7 +2,6 @@
 using dotenv.net;
 using dotenv.net.Utilities;
 using System.Threading.Tasks;
-using System.Runtime.InteropServices;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
 using OpenQA.Selenium.Support.UI;
@@ -20,8 +19,9 @@ namespace SeleniumExpTestProject
             try
             {
                 DotEnvConfig();
+                Core.CheckCredentials();
                 Misc.StartProgramMsg();
-
+                
                 using (IWebDriver driver = new ChromeDriver())
                 {
                     try
@@ -58,23 +58,23 @@ namespace SeleniumExpTestProject
                 var isLoggedIn = await Core.AttemptToLogIn(driver, Data.GetTestCaseUsername(), Data.GetTestCasePassword());
 
                 if (!isLoggedIn)
-                {
-                    Misc.Beep();
-                    Console.WriteLine("An error occured while attempting to log in");
-                    Console.WriteLine("Press any key to acknowledge error & quit.");
-                    Console.ReadKey();
-                    Environment.Exit(0);
-                }
+                    Misc.ErrorFoundQuit("attempting to log in");
             }
 
             Console.WriteLine("Successfully logged in");
 
             Data.SetSecret(string.Empty, Data.GetTestCaseUsername());
             var wasSecretSubmitted = await Core.SubmitSecret(driver, Data.GetSecret());
+            EndRunCode();
+        }
 
+        private static void EndRunCode()
+        {
             Misc.Beep();
             Console.WriteLine("Press any key to quit test window.");
+            Misc.Space();
             Console.ReadKey();
+            Misc.Space();
         }
 
         #region Setup
@@ -89,10 +89,17 @@ namespace SeleniumExpTestProject
 
         private static void DotEnvConfig()//Configures DotEnv files to find & recognize environment variables
         {
-            DotEnv.Config();
-            EnvReader envReader = new EnvReader();
-            Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
-            Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
+            try
+            {
+                DotEnv.Config();
+                EnvReader envReader = new EnvReader();
+                Data.SetTestCaseUsername(envReader.GetStringValue("USERNAME"));
+                Data.SetTestCasePassword(envReader.GetStringValue("PASSWORD"));
+            }
+            catch (Exception e)
+            {
+                Misc.HandleException(e, Data.excMsgDotEnvConfig);
+            }
         }
         #endregion
     }

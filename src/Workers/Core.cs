@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using OpenQA.Selenium;
 using SeleniumExpTestProject.src.Others;
+using System.Collections.Generic;
 
 namespace SeleniumExpTestProject.src.Workers
 {
@@ -59,7 +60,7 @@ namespace SeleniumExpTestProject.src.Workers
             return await IsLoggedIn(driver);
         }
 
-        internal static async Task<bool> SubmitSecret(IWebDriver driver, string secret)//Attempts to submit/post a 'secret' on the website
+        internal static async Task<bool> SubmitSecret(IWebDriver driver, string secret)//Attempts to submit/post a 'secret' on the website * 
         {
             var wasSubmissionSuccessful = false;
             var submitElementLocator = By.CssSelector("p");
@@ -81,7 +82,8 @@ namespace SeleniumExpTestProject.src.Workers
 
                 var hasSecretBeenSubmitted = await IsLoggedIn(driver);
 
-                /*if (hasSecretBeenSubmitted)
+                /*if (hasSecretBeenSubmitted)//This part of the code is supposed to ensure the submitted secret is on the actual displayed list
+
                 {
                     Thread.Sleep(Data.threadSleepTime);
 
@@ -93,6 +95,28 @@ namespace SeleniumExpTestProject.src.Workers
             }
 
             return wasSubmissionSuccessful;
+        }
+        
+        internal static Dictionary<string, string> CheckCredentials()//Sets credentials to a default value in case it hasn't been properly set
+        {
+            var credentials = new Dictionary<string, string>();
+            var username = Data.GetTestCaseUsername();
+            var password = Data.GetTestCasePassword();
+            credentials.Add(username, password);
+
+            if (Misc.IsStringNullOr(username) && Misc.IsStringNullOr(password))
+            {
+                Data.SetTestCaseUsername("John@Doe");
+                username = Data.GetTestCaseUsername();
+
+                Data.SetTestCasePassword("RandomPassword123^");
+                password = Data.GetTestCasePassword();
+
+                credentials.Clear();
+                credentials.Add(username, password);
+            }
+
+            return credentials;
         }
     }
 }
