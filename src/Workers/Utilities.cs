@@ -8,7 +8,7 @@ namespace SeleniumExpTestProject.src.Workers
 {
     class Utilities
     {
-        protected static async Task<bool> IsLoggedIn(IWebDriver driver)
+        protected static async Task<bool> IsLoggedIn(IWebDriver driver)//Checks if app has logged into SecretsBlog website
         {
             try
             {
@@ -35,7 +35,7 @@ namespace SeleniumExpTestProject.src.Workers
             return false;
         }
 
-        protected static async Task<bool> IsTextPresentInElement(IWebDriver driver, By elementLocator, string text)
+        protected static async Task<bool> IsTextPresentInElement(IWebDriver driver, By elementLocator, string text)//Checks if text is present in a page element
         {
             try
             {

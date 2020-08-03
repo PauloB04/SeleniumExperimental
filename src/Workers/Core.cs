@@ -8,8 +8,8 @@ namespace SeleniumExpTestProject.src.Workers
 {
     class Core: Utilities
     {
-        internal static async Task<bool> AttemptToRegisterCredentials(IWebDriver driver, string username, string password)
-        {
+        internal static async Task<bool> AttemptToRegisterCredentials(IWebDriver driver, string username, string password)//Attempts to register a user with 
+        {                                                                                                                 //username & password credentials
             var registerCondition = By.CssSelector(Data.btnCssSelector);
 
             driver.FindElement(By.ClassName("btn-light")).Click();
@@ -39,7 +39,7 @@ namespace SeleniumExpTestProject.src.Workers
             return isLoggedIn;
         }
 
-        internal static async Task<bool> AttemptToLogIn(IWebDriver driver, string username, string password)
+        internal static async Task<bool> AttemptToLogIn(IWebDriver driver, string username, string password)//Attempts to log in with username & password
         {
             if (Misc.IsStringValid(username) && Misc.IsStringValid(password))
             {
@@ -59,7 +59,7 @@ namespace SeleniumExpTestProject.src.Workers
             return await IsLoggedIn(driver);
         }
 
-        internal static async Task<bool> SubmitSecret(IWebDriver driver, string secret)
+        internal static async Task<bool> SubmitSecret(IWebDriver driver, string secret)//Attempts to submit/post a 'secret' on the website
         {
             var wasSubmissionSuccessful = false;
             var submitElementLocator = By.CssSelector("p");

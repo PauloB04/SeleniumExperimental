@@ -44,7 +44,7 @@ namespace SeleniumExpTestProject
             }
         }
 
-        private static async Task RunCode(IWebDriver driver)
+        private static async Task RunCode(IWebDriver driver)//Runs the core of the app with help from other libraries
         {
             WebDriverWait wait = new WebDriverWait(driver, TimeSpan.FromSeconds(4));
             Data.SetWaitGlobal(wait);
@@ -76,7 +76,7 @@ namespace SeleniumExpTestProject
 
         #region Setup
 
-        private static IWebDriver InitiateDriver(IWebDriver driver)
+        private static IWebDriver InitiateDriver(IWebDriver driver)//Starts up the webDriver needed to open a browser window
         {
             driver.Url = Data.webAppUrl;
             driver.Navigate();
@@ -84,7 +84,7 @@ namespace SeleniumExpTestProject
             return driver;
         }
 
-        private static void DotEnvConfig()
+        private static void DotEnvConfig()//Configures DotEnv files to find & recognize environment variables
         {
             DotEnv.Config();
             EnvReader envReader = new EnvReader();
