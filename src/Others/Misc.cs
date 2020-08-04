@@ -85,9 +85,24 @@ namespace SeleniumExpTestProject.src.Others
             Console.ReadKey();
         }
 
-        internal static void Sleep(double secs)//Forces Thread to sleep for specified seconds
+        internal static int Sleep(double secs)//Forces Thread to sleep for specified seconds
         {
-            Thread.Sleep(secs*1000);
+            try
+            {
+                var secsInt = Convert.ToInt32(secs * 1000);
+                Thread.Sleep(secsInt);
+                return secsInt;
+            }
+            catch (OverflowException e)
+            {
+                HandleException(e, Data.excMsgDoubleToIntConversion);
+            }
+            catch (Exception e)
+            {
+                HandleException(e, Data.excMsgDoubleToIntConversion);
+            }
+
+            return 0;
         }
         #endregion
     }

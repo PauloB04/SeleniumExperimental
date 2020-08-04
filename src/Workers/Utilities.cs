@@ -17,9 +17,13 @@ namespace SeleniumExpTestProject.src.Workers
                 var result = waitGlobal.Until(ExpectedConditions.ElementExists(element));
                 Console.WriteLine($"{nameof(result)}: {result}");
 
+                DisplayResults(element, result) ;
+
                 if (result != null)
                 {
+                    Misc.Space();
                     Console.WriteLine($"{nameof(element)} found: {element}");
+                    Misc.Space();
                     return true;
                 }
             }
@@ -31,7 +35,6 @@ namespace SeleniumExpTestProject.src.Workers
             {
                 Misc.HandleException(e, Data.excMsgIsLoggedIn);
             }
-
             return false;
         }
 
@@ -41,14 +44,17 @@ namespace SeleniumExpTestProject.src.Workers
             {
                 var waitGlobal = Data.GetWaitGlobal();
                 var result = waitGlobal.Until(ExpectedConditions.TextToBePresentInElement(driver.FindElement(elementLocator), text));
-                Console.WriteLine($"{nameof(result)}: {result}");
+                DisplayResults(elementLocator, text, result);
 
                 return result;
             }
             catch (WebDriverTimeoutException e)
             {
-                Console.WriteLine($"Expected text: {text}");
+                Misc.Space();
+                Console.WriteLine($"Expected text: **{text}**");
+                Misc.Space();
                 Misc.HandleException(e, Data.excMsgIsTextPresent);
+                Misc.Space();
             }
             catch (Exception e)
             {
@@ -56,6 +62,28 @@ namespace SeleniumExpTestProject.src.Workers
             }
 
             return false;
+        }
+
+        private static void DisplayResults(By elementLocator, string text, bool result)
+        {
+            Misc.Space();
+            Console.WriteLine($"*** Showing results for Results for --{nameof(IsTextPresentInElement)}-- ***");
+            Misc.Space();
+            Console.WriteLine($"Looking for text **{text}** in element -- {elementLocator} --");
+            Misc.Space();
+            Console.WriteLine($"{nameof(result)}: !{result}! for text **{text}**");
+            Misc.Space();
+        }
+
+        private static void DisplayResults(By elementLocator, IWebElement result)
+        {
+            Misc.Space();
+            Console.WriteLine($"*** Showing results for Results for -- {nameof(IsLoggedIn)} -- ***");
+            Misc.Space();
+            Console.WriteLine($"Looking for element -- {elementLocator} --");
+            Misc.Space();
+            Console.WriteLine($"{nameof(result)}: !{result}! for element **{elementLocator}**");
+            Misc.Space();
         }
     }
 }
