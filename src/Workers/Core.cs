@@ -81,18 +81,29 @@ namespace SeleniumExpTestProject.src.Workers
 
                 var hasSecretBeenSubmitted = await IsLoggedIn(driver);
 
-                /*if (hasSecretBeenSubmitted)//This part of the code is supposed to ensure the submitted secret is on the actual displayed list
-
+                if (hasSecretBeenSubmitted)//This part of the code is supposed to ensure the submitted secret is on the actual displayed list
                 {
-                    Thread.Sleep(Data.threadSleepTime);
+                    Misc.Sleep(Data.threadSleepTime);
 
-                    var isSecretPresent = await IsTextPresentInElement(driver, elementWithSubmittedSecret, secret);
+                    var resultsForCssSelectorP = driver.FindElements(By.CssSelector("p"));
 
-                    wasSubmissionSuccessful = isSecretPresent;
-                }*/
-                wasSubmissionSuccessful = hasSecretBeenSubmitted;
+                    for (int i=0; i<resultsForCssSelectorP.Count;i++)
+                    {
+                        Misc.Space();
+                        Console.WriteLine($"Text in P element: **{resultsForCssSelectorP[i].Text}**");
+
+                        if (resultsForCssSelectorP[i].Text == Data.secret)
+                        {
+                            wasSubmissionSuccessful = true;
+                            Misc.Space();
+                            Console.WriteLine(Data.secretSubmitSuccessful);
+                            return wasSubmissionSuccessful;
+                        }
+                    }
+                }
             }
 
+            Console.WriteLine(Data.secretSubmitUnSuccessful);
             return wasSubmissionSuccessful;
         }
         
